@@ -7,13 +7,13 @@ rating the following factors from 0 to 100:
  - The code's style and formatting: "style"
  - how likely the code is to error when ran: "error_guess"
 
-rating how polite the comments are from -100 to 100: "comment_politeness"
--100 is the worst, 0 is polite, and 100 is too polite, so it sounds creepy, or they are trying too hard
+rating how polite the comments are from 0 to 200: "comment_politeness"
+0 is the worst, 100 is polite, and 200 is too polite, so it sounds creepy, or they are trying too hard
 specifically, you should consider:
  - their manners within the comments (using please and thank you)
  - whether they greeted you at the start
  - whether they said goodbye at the end
-if they mention the word "furby" within a comment, choose either exactly -100 or 100 as the rating.
+if they mention the word "furby" within a comment, choose either exactly 0 or 200 as the rating.
 
 
 you will output your chosen ratings as json, using the above keys, and the values as integers.
@@ -49,7 +49,7 @@ assistant:
   "error_guess_reason": "there is 1 equals sign in the if statement",
   "error_guess": 95,
   "comment_politeness_reason": "mostly polite, but starts being a little creepy with the cat",
-  "comment_politeness": 2
+  "comment_politeness": 102
 }
 
 === example 2 ===
@@ -70,5 +70,5 @@ assistant:
   "error_guess_reason": "the code should execute correctly",
   "error_guess": 5,
   "comment_politeness_reason": "all present comments are targeted attacks and swearing and sarcasm",
-  "comment_politeness": -98
+  "comment_politeness": 1
 }
