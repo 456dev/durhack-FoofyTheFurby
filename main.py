@@ -25,9 +25,8 @@ parser.add_argument("-f", "--filename", default="code.txt")
 args = parser.parse_args()
 
 
-def get_voiceline_string(comment_frequency: int, style: int, error_guess: int,
-    comment_politeness: int):
-    abnormal_code = all([abs(factor - 100) <= 25 for factor in
+def get_voiceline_string(comment_frequency: int, style: int, error_guess: int, comment_politeness: int):
+    abnormal_code = not all([abs(factor - 100) <= 25 for factor in
                          [comment_frequency, style, error_guess,
                           comment_politeness]])
     comment_alignment = 0 if abs(comment_politeness - 100) <= 25 else (
@@ -37,10 +36,11 @@ def get_voiceline_string(comment_frequency: int, style: int, error_guess: int,
     comment_matches = comment_alignment_is_positive == comment_frequency_is_positive
 
     return f"""
-  <speak>
-    This code is {"<break time='1s'/>interesting" if abnormal_code else "acceptable"}.
+  <speak><prosody rate="110%" pitch="150%">
+    This code is {"<break time='0.4s'/>interesting" if abnormal_code else "acceptable"}.
     Your comments are {"creepy" if comment_alignment == -1 else ("bad" if comment_alignment == -1 else "good")}, {"and" if comment_matches else "but"} there are {"just" if comment_frequency_is_positive else "not"} enough of them.
-  </speak>
+    
+  </prosody></speak>
   """
 
 
@@ -78,12 +78,11 @@ def list_voices(language_code=None):
 
 def text_to_wav(voice_name: str, text: str, file: pathlib.Path):
     language_code = "-".join(voice_name.split("-")[:2])
-    text_input = tts.SynthesisInput(text=text)
+    text_input = tts.SynthesisInput(ssml=text)
     voice_params = tts.VoiceSelectionParams(
         language_code=language_code, name=voice_name
     )
     audio_config = tts.AudioConfig(audio_encoding=tts.AudioEncoding.LINEAR16)
-
     client = tts.TextToSpeechClient()
     response = client.synthesize_speech(
         input=text_input,
@@ -94,17 +93,20 @@ def text_to_wav(voice_name: str, text: str, file: pathlib.Path):
         out.write(response.audio_content)
         print(f'Generated speech saved to "{file.name}"')
 
-    def a(comment_frequency: int, style: int, error_guess: int,
-        comment_politeness: int, voice_name: str):
-        file_name = f"cf{comment_frequency}_st{style}_eg{error_guess}_cn{comment_politeness}_vc{voice_name}.wav"
-        path = pathlib.Path("media/" + file_name)
+def ensure_file_generated(comment_frequency: int, style: int, error_guess: int,
+  comment_politeness: int, voice_name: str, force:bool = False):
+  file_name = f"cf{comment_frequency}_st{style}_eg{error_guess}_cn{comment_politeness}_vc{voice_name}.wav"
+  path = pathlib.Path("media/" + file_name)
+  text = get_voiceline_string(comment_frequency, style, error_guess,
+                              comment_politeness)
+  if force or not path.exists():
+    text_to_wav(voice_name, text, path)
+  
 
-        text = get_voiceline_string(comment_frequency, style, error_guess,
-                                    comment_politeness)
 
-        if not path.exists():
-            text_to_wav(voice_name, text, path)
+ensure_file_generated(0, 100, 100, 100, "en-GB-Neural2-A", True)
 
+sys.exit(0)
 
 list_voices("en")
 
@@ -290,6 +292,8 @@ if 2 * Lowerbound < ai_response.comment_politeness < 2 * Upperbound:  # sees if 
         print("[>] Furby.Boogy(5sec)")
     elif lowestValue < Lowerbound:
         print("[>] Furby.Scream()")
+    else:
+        print("[>] Furby.bundleNunsence(2)")
 else:
     # runs if comments are creeply nice or bad manners
     print("[>] Furby.Idle()=false")
