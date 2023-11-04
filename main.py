@@ -130,9 +130,12 @@ print(CODE_CONTENT)
 
 print("[*] Calling OpenAI Api")
 time_to_ai = time.time()
-completion = openai.ChatCompletion.create(model="gpt-3.5-turbo", messages=[
-    {"role": "system", "content": SYSTEM_PROMPT},
-    {"role": "user", "content": CODE_CONTENT}])
+try:
+    completion = openai.ChatCompletion.create(model="gpt-3.5-turbo", messages=[
+        {"role": "system", "content": SYSTEM_PROMPT},
+        {"role": "user", "content": CODE_CONTENT}], temperature=0.2, request_timeout=120)
+except openai.error.Timeout as e:
+    on_error("OpenAi TIMEOUT")
 
 print(f"[*] Got Response in {time.time() - time_to_ai}")
 response = completion['choices'][0]['message']['content']
@@ -148,6 +151,9 @@ ai_response = AiResponse.model_validate(response_infomation)
 
 
 
+should_scream = False
+
+# if (ai_response.)
 
 
 pprint.pprint(ai_response)
@@ -156,14 +162,33 @@ pprint.pprint(ai_response)
 
 
 """
+Scores[]= {
+ai_responce.comment_frequency, 
+ai_responce.style, 
+ai_responce.error_guess
+}
 Print(ai_responce.comment_frequency_reason)
-Read "comment_frequency"
+
 Print(ai_responce.style_reason)
-Read  "style"
+
 Print(ai_responce.error_guess_reason)
-Read "error_guess"
+
 Print(ai_responce.comment_politeness_reason)
-Read "comment_politeness"/2
+if 25<(ai_responce.comment_politeness/2)<75
+  lowestValue=100
+  for x in Scores[]
+    if x < lowestValue
+      lowestValue=x
+  if lowestValue>75
+    Print("Furby.Boogy(5sec)")
+  elif lowestValue<25
+    Print("Furby.Scream()")
+
+else
+  Print("Furby.idle()=false")
+  Print("Furby.Scream()")
+  
+
 ai_responce.comment_frequency
 ai_responce.comment_frequency
 ai_responce.comment_frequency
