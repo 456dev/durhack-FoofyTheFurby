@@ -1,3 +1,4 @@
+import argparse
 import os
 import pprint
 
@@ -85,7 +86,7 @@ class AiResponse(pydantic.BaseModel):
     comment_politeness: int
 
 
-print("furby.init()")
+print("[>] furby.init()")
 """
 furby methods
 init
@@ -184,10 +185,21 @@ assistant:
 }
 """
 
+
+input_filename = ""
+
+parser = argparse.ArgumentParser(
+                    prog='FurbyReviewer',
+                    description='Forces the Furby to watch you code.',
+                    epilog='God help us all.')
+
+parser.add_argument("-f", "--filename", default="code.txt")
+args = parser.parse_args()
+
 # TODO change to cli input
 print("[>] Furby.Thinking(1)")
 print("[*] loading File")
-with open("code.txt", "r") as file:
+with open(args.filename, "r") as file:
     x = file.readlines()
     print("[*] Read Lines")
 CODE_CONTENT = "".join(x)
@@ -255,6 +267,7 @@ else:
     print("[>] Furby.Idle()=false")
     print("[>] Furby.Scream()")
 print("[>] Furby.Idle=true")
+
 
 # on file change
 
