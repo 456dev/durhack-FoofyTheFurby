@@ -100,7 +100,7 @@ def text_to_wav(voice_name: str, text: str, file: pathlib.Path):
 def ensure_file_generated(comment_frequency: int, style: int, error_guess: int,
   comment_politeness: int, voice_name: str, force:bool = False):
   file_name = f"cf{comment_frequency}_st{style}_eg{error_guess}_cn{comment_politeness}_vc{voice_name}.wav"
-  path = pathlib.Path("media/" + file_name)
+  path = pathlib.Path("media/generated/" + file_name)
   text = get_voiceline_string(comment_frequency, style, error_guess,
                               comment_politeness)
   if force or not path.exists():
@@ -116,7 +116,6 @@ def play_and_modulate(comment_frequency: int, style: int, error_guess: int,
     new_subsegments = [(seg + random.randrange(-60, 20)/10) for seg in subsegments]
     full_modulated = sum(new_subsegments)
     pydub.playback.play(full_modulated)
-
 
 
 
@@ -287,6 +286,14 @@ print(ai_response.comment_politeness_reason)
 print(f"[I] Score of {ai_response.comment_politeness}")
 Upperbound = 75
 Lowerbound = 25
+
+
+def scream():
+    audioseg = pydub.AudioSegment.from_wav(pathlib.Path("media/hwoooooooooaaaaaaaaaah.wav"))
+    pydub.playback.play(audioseg)
+    print("[>] Furby.Scream()")
+
+
 if 2 * Lowerbound < ai_response.comment_politeness < 2 * Upperbound:  # sees if comments are bad mannered or creepy nice
     lowestValue = 100
     highestValue = 0
@@ -299,11 +306,11 @@ if 2 * Lowerbound < ai_response.comment_politeness < 2 * Upperbound:  # sees if 
     if lowestValue > Upperbound or highestValue > 95:
         print("[>] Furby.Boogy(5sec)")
     elif lowestValue < Lowerbound:
-        print("[>] Furby.Scream()")
+        scream()
     else:
         print("[>] Furby.bundleNunsence(2)")
 else:
     # runs if comments are creeply nice or bad manners
     print("[>] Furby.Idle()=false")
-    print("[>] Furby.Scream()")
+    scream()
 print("[>] Furby.Idle=true")
