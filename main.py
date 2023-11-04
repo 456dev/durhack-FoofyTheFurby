@@ -157,13 +157,13 @@ pprint.pprint(ai_response)
 
 """
 Print(ai_responce.comment_frequency_reason)
-Read "comment_frequency": 80,
+Read "comment_frequency"
 Print(ai_responce.style_reason)
-Read  "style": 75,
+Read  "style"
 Print(ai_responce.error_guess_reason)
-Read "error_guess": 5,
+Read "error_guess"
 Print(ai_responce.comment_politeness_reason)
-Read "comment_politeness": 102
+Read "comment_politeness"/2
 ai_responce.comment_frequency
 ai_responce.comment_frequency
 ai_responce.comment_frequency
