@@ -151,6 +151,8 @@ ai_response = AiResponse.model_validate(response_infomation)
 
 
 
+
+
 should_scream = False
 
 # if (ai_response.)
@@ -162,11 +164,7 @@ pprint.pprint(ai_response)
 
 
 """
-Scores[]= {
-ai_responce.comment_frequency, 
-ai_responce.style, 
-ai_responce.error_guess
-}
+Scores[]= {ai_responce.comment_frequency, ai_responce.style, ai_responce.error_guess}
 Print(ai_responce.comment_frequency_reason)
 
 Print(ai_responce.style_reason)
@@ -174,18 +172,25 @@ Print(ai_responce.style_reason)
 Print(ai_responce.error_guess_reason)
 
 Print(ai_responce.comment_politeness_reason)
-if 25<(ai_responce.comment_politeness/2)<75
+Upperbound = 75
+Lowerbound = 25
+if Lowerbound<(ai_responce.comment_politeness/2)<Upperbound
   lowestValue=100
+  highestValue = 0
   for x in Scores[]
     if x < lowestValue
       lowestValue=x
-  if lowestValue>75
+    if x > highestValue
+      highestValue=x
+  Print("Furby.Idle()=False")
+  if lowestValue>Upperbound
     Print("Furby.Boogy(5sec)")
-  elif lowestValue<25
+  if highestValue>95
+    Furby.Boogy
+  elif lowestValue<Lowerbound
     Print("Furby.Scream()")
-
 else
-  Print("Furby.idle()=false")
+  Print("Furby.Idle()=false")
   Print("Furby.Scream()")
   
 
