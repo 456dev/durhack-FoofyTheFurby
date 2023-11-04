@@ -17,23 +17,28 @@ import google.cloud.texttospeech as tts
 dotenv.load_dotenv()
 
 parser = argparse.ArgumentParser(
-                    prog='FurbyReviewer',
-                    description='Forces the Furby to watch you code.',
-                    epilog='God help us all.')
+    prog='FurbyReviewer',
+    description='Forces the Furby to watch you code.',
+    epilog='God help us all.')
 
 parser.add_argument("-f", "--filename", default="code.txt")
 args = parser.parse_args()
 
-def get_voiceline_string(comment_frequency: int, style: int, error_guess: int, comment_politeness: int):
-  abnormal_code = all([abs(factor - 100) <= 25 for factor in [comment_frequency, style, error_guess, comment_politeness]])
-  comment_alignment = 0 if abs(comment_politeness - 100) <= 25 else (-1 if comment_politeness < 100 else 1)
-  comment_alignment_is_positive = comment_alignment == 0
-  comment_frequency_is_positive = abs(comment_frequency - 100) <= 25
-  comment_matches = comment_alignment_is_positive == comment_frequency_is_positive
 
-  f"""
+def get_voiceline_string(comment_frequency: int, style: int, error_guess: int,
+    comment_politeness: int):
+    abnormal_code = all([abs(factor - 100) <= 25 for factor in
+                         [comment_frequency, style, error_guess,
+                          comment_politeness]])
+    comment_alignment = 0 if abs(comment_politeness - 100) <= 25 else (
+        -1 if comment_politeness < 100 else 1)
+    comment_alignment_is_positive = comment_alignment == 0
+    comment_frequency_is_positive = abs(comment_frequency - 100) <= 25
+    comment_matches = comment_alignment_is_positive == comment_frequency_is_positive
+
+    return f"""
   <speak>
-    This code is {"<break time=\"1s\"/>interesting" if abnormal_code else "acceptable"}.
+    This code is {"<break time='1s'/>interesting" if abnormal_code else "acceptable"}.
     Your comments are {"creepy" if comment_alignment == -1 else ("bad" if comment_alignment == -1 else "good")}, {"and" if comment_matches else "but"} there are {"just" if comment_frequency_is_positive else "not"} enough of them.
   </speak>
   """
@@ -89,18 +94,16 @@ def text_to_wav(voice_name: str, text: str, file: pathlib.Path):
         out.write(response.audio_content)
         print(f'Generated speech saved to "{file.name}"')
 
-
-    def a(comment_frequency: int, style: int, error_guess: int, comment_politeness: int, voice_name:str):
+    def a(comment_frequency: int, style: int, error_guess: int,
+        comment_politeness: int, voice_name: str):
         file_name = f"cf{comment_frequency}_st{style}_eg{error_guess}_cn{comment_politeness}_vc{voice_name}.wav"
-        path = pathlib.Path("media/"+file_name)
+        path = pathlib.Path("media/" + file_name)
 
-        text = get_voiceline_string(comment_frequency, style, error_guess, comment_politeness)
+        text = get_voiceline_string(comment_frequency, style, error_guess,
+                                    comment_politeness)
 
         if not path.exists():
             text_to_wav(voice_name, text, path)
-
-
-
 
 
 list_voices("en")
@@ -236,11 +239,11 @@ try:
     completion = openai.ChatCompletion.create(
         model="gpt-3.5-turbo",
         messages=[
-          {"role": "system", "content": SYSTEM_PROMPT},
-          {"role": "user", "content": CODE_CONTENT}],
+            {"role": "system", "content": SYSTEM_PROMPT},
+            {"role": "user", "content": CODE_CONTENT}],
         temperature=0.2,
         request_timeout=120
-      )
+    )
 except openai.error.Timeout as e:
     on_error("OpenAi TIMEOUT")
 except openai.error.ServiceUnavailableError as e:
@@ -258,7 +261,6 @@ response_infomation = json.loads(response)
 print("[*] validating against expected model")
 ai_response = AiResponse.model_validate(response_infomation)
 
-
 pprint.pprint(ai_response)
 
 # Takes in scores from ai and makes furby act accordingly
@@ -275,7 +277,7 @@ print(ai_response.comment_politeness_reason)
 print(f"[I] Score of {ai_response.comment_politeness}")
 Upperbound = 75
 Lowerbound = 25
-if 2*Lowerbound < ai_response.comment_politeness < 2 * Upperbound:  # sees if comments are bad mannered or creepy nice
+if 2 * Lowerbound < ai_response.comment_politeness < 2 * Upperbound:  # sees if comments are bad mannered or creepy nice
     lowestValue = 100
     highestValue = 0
     for x in Scores:  # loops to find highest and lowest score
@@ -293,5 +295,3 @@ else:
     print("[>] Furby.Idle()=false")
     print("[>] Furby.Scream()")
 print("[>] Furby.Idle=true")
-
-
