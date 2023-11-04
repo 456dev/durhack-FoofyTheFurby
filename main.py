@@ -13,6 +13,7 @@ import google.cloud.texttospeech as tts
 
 dotenv.load_dotenv()
 
+
 def unique_languages_from_voices(voices: Sequence[tts.Voice]):
     language_set = set()
     for voice in voices:
@@ -29,7 +30,6 @@ def list_languages():
     print(f" Languages: {len(languages)} ".center(60, "-"))
     for i, language in enumerate(sorted(languages)):
         print(f"{language:>10}", end="\n" if i % 5 == 4 else "")
-        
 
 
 def list_voices(language_code=None):
@@ -44,12 +44,34 @@ def list_voices(language_code=None):
         gender = tts.SsmlVoiceGender(voice.ssml_gender).name
         rate = voice.natural_sample_rate_hertz
         print(f"{languages:<8} | {name:<24} | {gender:<8} | {rate:,} Hz")
-        
+
+
+def text_to_wav(voice_name: str, text: str):
+    language_code = "-".join(voice_name.split("-")[:2])
+    text_input = tts.SynthesisInput(text=text)
+    voice_params = tts.VoiceSelectionParams(
+        language_code=language_code, name=voice_name
+    )
+    audio_config = tts.AudioConfig(audio_encoding=tts.AudioEncoding.LINEAR16)
+
+    client = tts.TextToSpeechClient()
+    response = client.synthesize_speech(
+        input=text_input,
+        voice=voice_params,
+        audio_config=audio_config,
+    )
+
+    filename = f"{voice_name}.wav"
+    with open(filename, "wb") as out:
+        out.write(response.audio_content)
+        print(f'Generated speech saved to "{filename}"')
+
 
 list_voices("en")
-import sys
-sys.exit(0) 
 
+
+# import sys
+# sys.exit(0)
 
 
 class AiResponse(pydantic.BaseModel):
@@ -62,7 +84,8 @@ class AiResponse(pydantic.BaseModel):
     comment_politeness_reason: str
     comment_politeness: int
 
-# TODO furby.init()
+
+print("furby.init()")
 """
 furby methods
 init
@@ -75,7 +98,7 @@ custom sounds
 
 
 def on_error(msg: str):
-    # TODO furby.babble_nonsense()
+    print("furby.babble_nonsense()")
     print(f"[!] Error: {msg}")
     raise NotImplementedError(msg)
 
@@ -162,7 +185,7 @@ assistant:
 """
 
 # TODO change to cli input
-
+print("[>] Furby.Thinking(1)")
 print("[*] loading File")
 with open("code.txt", "r") as file:
     x = file.readlines()
@@ -174,9 +197,14 @@ print(CODE_CONTENT)
 print("[*] Calling OpenAI Api")
 time_to_ai = time.time()
 try:
-    completion = openai.ChatCompletion.create(model="gpt-3.5-turbo", messages=[
-        {"role": "system", "content": SYSTEM_PROMPT},
-        {"role": "user", "content": CODE_CONTENT}], temperature=0.2, request_timeout=120)
+    completion = openai.ChatCompletion.create(
+        model="gpt-3.5-turbo",
+        messages=[
+          {"role": "system", "content": SYSTEM_PROMPT},
+          {"role": "user", "content": CODE_CONTENT}],
+        temperature=0.2,
+        request_timeout=120
+      )
 except openai.error.Timeout as e:
     on_error("OpenAi TIMEOUT")
 
@@ -193,54 +221,40 @@ print("[*] validating against expected model")
 ai_response = AiResponse.model_validate(response_infomation)
 
 
-
-
-
-should_scream = False
-
-# if (ai_response.)
-
-
 pprint.pprint(ai_response)
 
+# Takes in scores from ai and makes furby act accordingly
 
-
-
-
-#Takes in scores from ai and makes furby act accordingly
-Print("Furby.Thinking(1)")
-Scores[] = {ai_responce.comment_frequency, ai_responce.style, ai_responce.error_guess}
-Print(ai_responce.comment_frequency_reason)
-Print("Score of "+ ai_responce.comment_frequency)
-Print(ai_responce.style_reason)
-Print("Score of "+ ai_responce.style)
-Print(ai_responce.error_guess_reason)
-Print("Score of "+ ai_responce.error_guess)
-Print(ai_responce.comment_politeness_reason)
-Print("Score of "+ ai_responce.comment_politeness)
+Scores = [ai_response.comment_frequency, ai_response.style,
+          ai_response.error_guess]
+print(ai_response.comment_frequency_reason)
+print(f"[I] Score of {ai_response.comment_frequency}")
+print(ai_response.style_reason)
+print(f"[I] Score of {ai_response.style}")
+print(ai_response.error_guess_reason)
+print(f"[I] Score of {ai_response.error_guess}")
+print(ai_response.comment_politeness_reason)
+print(f"[I] Score of {ai_response.comment_politeness}")
 Upperbound = 75
 Lowerbound = 25
-if Lowerbound<(ai_responce.comment_politeness/2)<Upperbound
-  lowestValue=100
-  highestValue = 0
-  for x in Scores[]
-    if x < lowestValue
-      lowestValue=x
-    if x > highestValue
-      highestValue=x
-  Print("Furby.Idle()=False")
-  if lowestValue>Upperbound
-    Print("Furby.Boogy(5sec)")
-  if highestValue>95
-    Furby.Boogy
-  elif lowestValue<Lowerbound
-    Print("Furby.Scream()")
-else
-  Print("Furby.Idle()=false")
-  Print("Furby.Scream()")
-Print("Furby.Idle=true")
-
-
+if Lowerbound < (ai_response.comment_politeness / 2) < Upperbound:  # sees if comments are bad mannered or creepy nice
+    lowestValue = 100
+    highestValue = 0
+    for x in Scores:  # loops to find highest and lowest score
+        if x < lowestValue:
+            lowestValue = x
+        if x > highestValue:
+            highestValue = x
+    print("[>] Furby.Idle()=False")
+    if lowestValue > Upperbound or highestValue > 95:
+        print("[>] Furby.Boogy(5sec)")
+    elif lowestValue < Lowerbound:
+        print("[>] Furby.Scream()")
+else:
+    # runs if comments are creeply nice or bad manners
+    print("[>] Furby.Idle()=false")
+    print("[>] Furby.Scream()")
+print("[>] Furby.Idle=true")
 
 # on file change
 
@@ -255,11 +269,3 @@ Print("Furby.Idle=true")
 # file (once per run)
 # file (run on change)
 # api
-
-# processing
-# output
-
-
-# output supports:
-# read furby hardware
-# furby emulator
