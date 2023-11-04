@@ -7,7 +7,50 @@ import json
 import pydantic
 import time
 
+from typing import Sequence
+
+import google.cloud.texttospeech as tts
+
 dotenv.load_dotenv()
+
+def unique_languages_from_voices(voices: Sequence[tts.Voice]):
+    language_set = set()
+    for voice in voices:
+        for language_code in voice.language_codes:
+            language_set.add(language_code)
+    return language_set
+
+
+def list_languages():
+    client = tts.TextToSpeechClient()
+    response = client.list_voices()
+    languages = unique_languages_from_voices(response.voices)
+
+    print(f" Languages: {len(languages)} ".center(60, "-"))
+    for i, language in enumerate(sorted(languages)):
+        print(f"{language:>10}", end="\n" if i % 5 == 4 else "")
+        
+
+
+def list_voices(language_code=None):
+    client = tts.TextToSpeechClient()
+    response = client.list_voices(language_code=language_code)
+    voices = sorted(response.voices, key=lambda voice: voice.name)
+
+    print(f" Voices: {len(voices)} ".center(60, "-"))
+    for voice in voices:
+        languages = ", ".join(voice.language_codes)
+        name = voice.name
+        gender = tts.SsmlVoiceGender(voice.ssml_gender).name
+        rate = voice.natural_sample_rate_hertz
+        print(f"{languages:<8} | {name:<24} | {gender:<8} | {rate:,} Hz")
+        
+
+list_voices("en")
+import sys
+sys.exit(0) 
+
+
 
 class AiResponse(pydantic.BaseModel):
     comment_frequency_reason: str
@@ -163,15 +206,18 @@ pprint.pprint(ai_response)
 
 
 
-"""
-Scores[]= {ai_responce.comment_frequency, ai_responce.style, ai_responce.error_guess}
+
+#Takes in scores from ai and makes furby act accordingly
+Print("Furby.Thinking(1)")
+Scores[] = {ai_responce.comment_frequency, ai_responce.style, ai_responce.error_guess}
 Print(ai_responce.comment_frequency_reason)
-
+Print("Score of "+ ai_responce.comment_frequency)
 Print(ai_responce.style_reason)
-
+Print("Score of "+ ai_responce.style)
 Print(ai_responce.error_guess_reason)
-
+Print("Score of "+ ai_responce.error_guess)
 Print(ai_responce.comment_politeness_reason)
+Print("Score of "+ ai_responce.comment_politeness)
 Upperbound = 75
 Lowerbound = 25
 if Lowerbound<(ai_responce.comment_politeness/2)<Upperbound
@@ -192,12 +238,9 @@ if Lowerbound<(ai_responce.comment_politeness/2)<Upperbound
 else
   Print("Furby.Idle()=false")
   Print("Furby.Scream()")
-  
+Print("Furby.Idle=true")
 
-ai_responce.comment_frequency
-ai_responce.comment_frequency
-ai_responce.comment_frequency
-"""
+
 
 # on file change
 
