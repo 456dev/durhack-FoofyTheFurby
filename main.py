@@ -9,7 +9,11 @@
 
 
 
-# code input
+# input:
+# file (once per run)
+# file (run on change)
+# api
+
 # processing
 # output
 
