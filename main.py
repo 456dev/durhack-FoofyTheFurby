@@ -148,21 +148,25 @@ ai_response = AiResponse.model_validate(response_infomation)
 
 
 
+
+
 pprint.pprint(ai_response)
 
 
 
 
 """
-Read Number after 2nd : "comment_frequency_reason":"There are comments on most lines. some more complex lines should be more commented, other comments are just padding",
+Output"comment_frequency_reason":"There are comments on most lines. some more complex lines should be more commented, other comments are just padding",
 Read Number after 1st : "comment_frequency": 80,
-Read "style_reason": "related lines are a little spread apart, the variable var_a is defined but used only once, everything is on separate lines",
-Rea  "style": 75,
-Read "error_guess_reason": "there is 1 equals sign in the if statement",
+Output "style_reason"
+Read  "style": 75,
+"error_guess_reason": "there is 1 equals sign in the if statement",
 Read "error_guess": 5,
 Read "comment_politeness_reason": "mostly polite, but starts being a little creepy with the cat",
 Read "comment_politeness": 102
-
+ai_responce.comment_frequency
+ai_responce.comment_frequency
+ai_responce.comment_frequency
 """
 
 # on file change
