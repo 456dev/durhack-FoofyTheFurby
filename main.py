@@ -34,7 +34,7 @@ def get_voiceline_string(comment_frequency: int, style: int, error_guess: int, c
   f"""
   <speak>
     This code is {"<break time=\"1s\"/>interesting" if abnormal_code else "acceptable"}.
-    Your comments are {"creepy" if comment_alignment == -1 else ("bad" if comment_alignment == -1 else "good")}, {"and" if comment_matches else "but"} there are {"just" if comment_frequency_is_positive "not"} enough of them.
+    Your comments are {"creepy" if comment_alignment == -1 else ("bad" if comment_alignment == -1 else "good")}, {"and" if comment_matches else "but"} there are {"just" if comment_frequency_is_positive else "not"} enough of them.
   </speak>
   """
 
