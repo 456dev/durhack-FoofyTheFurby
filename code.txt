@@ -1,0 +1,3 @@
+# Example test code: runs the rm command on all .tmp files
+import os
+os.system("rm *.tmp")
