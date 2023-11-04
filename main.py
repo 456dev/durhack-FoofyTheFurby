@@ -156,13 +156,13 @@ pprint.pprint(ai_response)
 
 
 """
-Output"comment_frequency_reason":"There are comments on most lines. some more complex lines should be more commented, other comments are just padding",
-Read Number after 1st : "comment_frequency": 80,
-Output "style_reason"
+Print(ai_responce.comment_frequency_reason)
+Read "comment_frequency": 80,
+Print(ai_responce.style_reason)
 Read  "style": 75,
-"error_guess_reason": "there is 1 equals sign in the if statement",
+Print(ai_responce.error_guess_reason)
 Read "error_guess": 5,
-Read "comment_politeness_reason": "mostly polite, but starts being a little creepy with the cat",
+Print(ai_responce.comment_politeness_reason)
 Read "comment_politeness": 102
 ai_responce.comment_frequency
 ai_responce.comment_frequency
