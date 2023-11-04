@@ -111,10 +111,6 @@ def ensure_file_generated(comment_frequency: int, style: int, error_guess: int,
 def play_and_modulate(comment_frequency: int, style: int, error_guess: int,
   comment_politeness: int, voice_name: str, force:bool = False):
     path = ensure_file_generated(comment_frequency, style, error_guess, comment_politeness, voice_name, force)
-
-    y, sr = librosa.load(path)
-    librosa.effects.pitch_shift(y, sr=sr, )
-
     audioseg = pydub.AudioSegment.from_wav(path)
     subsegments = audioseg[::100]
     new_subsegments = [(seg + random.randrange(-60, 20)/10) for seg in subsegments]
@@ -122,13 +118,6 @@ def play_and_modulate(comment_frequency: int, style: int, error_guess: int,
     pydub.playback.play(full_modulated)
 
 
-play_and_modulate(0, 100, 100, 100, "en-GB-Neural2-A", True)
-
-sys.exit(0)
-
-
-# import sys
-# sys.exit(0)
 
 
 class AiResponse(pydantic.BaseModel):
@@ -278,6 +267,9 @@ response_infomation = json.loads(response)
 
 print("[*] validating against expected model")
 ai_response = AiResponse.model_validate(response_infomation)
+
+play_and_modulate(ai_response.comment_frequency, ai_response.style, ai_response.error_guess,ai_response.comment_politeness, "en-GB-Neural2-A", True)
+
 
 pprint.pprint(ai_response)
 
