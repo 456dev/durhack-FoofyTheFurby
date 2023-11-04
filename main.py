@@ -9,6 +9,8 @@ import json
 import pydantic
 import time
 import pathlib
+import pydub, pydub.playback
+import random
 
 from typing import Sequence
 
@@ -91,7 +93,8 @@ def text_to_wav(voice_name: str, text: str, file: pathlib.Path):
     )
     with open(file, "wb") as out:
         out.write(response.audio_content)
-        print(f'Generated speech saved to "{file.name}"')
+    print(f'Generated speech saved to "{file.name}"')
+
 
 def ensure_file_generated(comment_frequency: int, style: int, error_guess: int,
   comment_politeness: int, voice_name: str, force:bool = False):
@@ -101,14 +104,23 @@ def ensure_file_generated(comment_frequency: int, style: int, error_guess: int,
                               comment_politeness)
   if force or not path.exists():
     text_to_wav(voice_name, text, path)
+  return path
   
 
+def play_and_modulate(comment_frequency: int, style: int, error_guess: int,
+  comment_politeness: int, voice_name: str, force:bool = False):
+    path = ensure_file_generated(comment_frequency, style, error_guess, comment_politeness, voice_name, force)
 
-ensure_file_generated(0, 100, 100, 100, "en-GB-Neural2-A", True)
+    audioseg = pydub.AudioSegment.from_wav(path)
+    subsegments = audioseg[::100]
+    subsegments = [(seg + random.randrange(-20, 50)/10) for seg in subsegments]
+    full_modulated = sum(subsegments)
+    pydub.playback.play(audioseg)
+
+
+play_and_modulate(0, 100, 100, 100, "en-GB-Neural2-A", True)
 
 sys.exit(0)
-
-list_voices("en")
 
 
 # import sys
