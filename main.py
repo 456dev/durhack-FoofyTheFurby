@@ -4,6 +4,7 @@ import os
 import pathlib
 import pprint
 import random
+import sys
 import time
 from typing import Sequence
 
@@ -14,8 +15,8 @@ import pydantic
 import pydub
 import pydub.playback
 
-import furby2 as furby
-# import furbymock as furby
+# import furby2 as furby
+import furbymock as furby
 
 dotenv.load_dotenv()
 
@@ -25,12 +26,20 @@ parser = argparse.ArgumentParser(
     epilog='God help us all.')
 
 parser.add_argument("-f", "--filename", default="code.txt")
+parser.add_argument("-c", "--clean", default=True, action=argparse.BooleanOptionalAction)
 # parser.add_argument("-m", "--device", default="dryrun")
 args = parser.parse_args()
 
+clean = args.clean
+if not clean:
+    x = input("you are about to run the unclean version. are you sure? type 'yes' to continue: ")
+    if x.lower() != "yes":
+        sys.exit(0)
+
+
 
 def get_voiceline_string(comment_frequency: int, style: int, error_guess: int,
-    comment_politeness: int):
+    comment_politeness: int, clean:bool=True):
     abnormal_code = not all([abs(factor - 100) <= 25 for factor in
                              [comment_frequency, style, error_guess,
                               comment_politeness]])
@@ -50,7 +59,14 @@ def get_voiceline_string(comment_frequency: int, style: int, error_guess: int,
     {"Why would you say such a thing to me?" if not comment_alignment_is_positive else ""}
     {"That's absolutely awful, why would you make me look at this shit. It makes me want to gouge my eyes out." if not good_style else "Your code style doesn't look like an elephant ran over a pancake, you better keep it that way."}
     {"After seeing this thing, I understand why you are still alone in your mother's basement. You put so little effort into this, it seems like a crude ploy to make me die by making me read such horrendous code with obvious errors?" if not good_code else ""} 
-
+  </prosody></speak>
+  """ if not clean else f"""
+  <speak><prosody rate="110%" pitch="150%">
+  This code {"doesnt meet" if abnormal_code else "meets"} requirements.
+    Your comments are {"overwhelming" if comment_alignment == -1 else ("disappointing" if comment_alignment == -1 else "good")}, {"and" if comment_matches else "but"} there are {"" if comment_frequency_is_positive else "not"} enough of them.
+    {"your comments could be interpreted negatively" if not comment_alignment_is_positive else ""}
+    {"your codestyle doesnt meet requirements: try keeping a consistant format, and spliting long statements over multiple lines." if not good_style else "Your code style is quite clean."}
+    {"It looks your code might contain errors." if not good_code else "It looks like your code should run without errors. Make sure to test it yourself though."}
   </prosody></speak>
   """
 
@@ -106,20 +122,20 @@ def text_to_wav(voice_name: str, text: str, file: pathlib.Path):
 
 
 def ensure_file_generated(comment_frequency: int, style: int, error_guess: int,
-    comment_politeness: int, voice_name: str, force: bool = False):
-    file_name = f"cf{comment_frequency}_st{style}_eg{error_guess}_cn{comment_politeness}_vc{voice_name}.wav"
+    comment_politeness: int, voice_name: str, force: bool = False, clean: bool = True):
+    file_name = f"cf{comment_frequency}_st{style}_eg{error_guess}_cn{comment_politeness}_vc{voice_name}_cl{'1' if clean else '0'}.wav"
     path = pathlib.Path("media/generated/" + file_name)
     text = get_voiceline_string(comment_frequency, style, error_guess,
-                                comment_politeness)
+                                comment_politeness, clean)
     if force or not path.exists():
         text_to_wav(voice_name, text, path)
     return path
 
 
 def play_and_modulate(comment_frequency: int, style: int, error_guess: int,
-    comment_politeness: int, voice_name: str, force: bool = False):
+    comment_politeness: int, voice_name: str, force: bool = False, clean: bool = True):
     path = ensure_file_generated(comment_frequency, style, error_guess,
-                                 comment_politeness, voice_name, force)
+                                 comment_politeness, voice_name, force, clean)
     audioseg = pydub.AudioSegment.from_wav(path)
     subsegments = audioseg[::100]
     new_subsegments = [(seg + random.randrange(-60, 20) / 10) for seg in
@@ -289,11 +305,6 @@ response_infomation = json.loads(response)
 print("[*] validating against expected model")
 ai_response = AiResponse.model_validate(response_infomation)
 
-play_and_modulate(ai_response.comment_frequency, ai_response.style,
-                  ai_response.error_guess, ai_response.comment_politeness,
-                  "en-GB-Neural2-A", True)
-
-pprint.pprint(ai_response)
 
 # Takes in scores from ai and makes furby act accordingly
 
@@ -310,6 +321,10 @@ print(f"[I] Score of {ai_response.comment_politeness}")
 Upperbound = 75
 Lowerbound = 25
 
+
+
+
+pprint.pprint(ai_response)
 
 def scream():
     audioseg = pydub.AudioSegment.from_wav(
@@ -347,6 +362,15 @@ else:
     print("would have boogied")
     # print("[>] Furby boogie done")
     scream()
+
+
+
+play_and_modulate(ai_response.comment_frequency, ai_response.style,
+                  ai_response.error_guess, ai_response.comment_politeness,
+                  "en-GB-Neural2-A", False, clean)
+
+
+
 print("[>] Furby sleep")
 furby.sleep()
 print("[>] Furby sleep done")
