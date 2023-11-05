@@ -14,8 +14,8 @@ import pydantic
 import pydub
 import pydub.playback
 
-import furby2 as furby
-# import furbymock as furby
+# import furby2 as furby
+import furbymock as furby
 
 dotenv.load_dotenv()
 
@@ -25,6 +25,7 @@ parser = argparse.ArgumentParser(
     epilog='God help us all.')
 
 parser.add_argument("-f", "--filename", default="code.txt")
+# parser.add_argument("-m", "--device", default="dryrun")
 args = parser.parse_args()
 
 
@@ -46,7 +47,7 @@ def get_voiceline_string(comment_frequency: int, style: int, error_guess: int,
   <speak><prosody rate="110%" pitch="150%">
     This code is {"<break time='0.4s'/>interesting" if abnormal_code else "acceptable"}.
     Your comments are {"creepy" if comment_alignment == -1 else ("bad" if comment_alignment == -1 else "good")}, {"and" if comment_matches else "but"} there are {"just" if comment_frequency_is_positive else "not"} enough of them.
-    {"Why would you say such a thing to me?" if comment_alignment_is_positive else ""}
+    {"Why would you say such a thing to me?" if not comment_alignment_is_positive else ""}
     {"That's absolutely awful, why would you make me look at this shit. It makes me want to gouge my eyes out." if not good_style else "Your code style doesn't look like an elephant ran over a pancake, you better keep it that way."}
     {"After seeing this thing, I understand why you are still alone in your mother's basement. You put so little effort into this, it seems like a crude ploy to make me die by making me read such horrendous code with obvious errors?" if not good_code else ""} 
 
