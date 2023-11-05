@@ -3,7 +3,7 @@ import time
 
 ghost = False
 
-arduino = serial.Serial(port='/dev/ttyACM0',  baudrate=9600, timeout=.1)
+arduino = serial.Serial(port='/dev/ttyACM1',  baudrate=9600, timeout=.1)
 
 def init():
     arduino.write("home".encode())
@@ -47,3 +47,15 @@ def reset():
     while str(arduino.readline().decode().rstrip()) != "home return":
         time.sleep(0.05)
     print("furby reset")
+
+def startyapping():
+    arduino.write("home".encode())
+    while str(arduino.readline().decode().rstrip()) != "home return":
+        time.sleep(0.05)
+    arduino.write("speak".encode())
+
+def stopyapping():
+    arduino.write("nospeak".encode())
+    time.sleep(0.1)
+    while str(arduino.readline().decode().rstrip()) != "home return":
+        time.sleep(0.05)
