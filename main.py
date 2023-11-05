@@ -14,8 +14,8 @@ import pydantic
 import pydub
 import pydub.playback
 
-# import furby2 as furby
-import furbymock as furby
+import furby2 as furby
+# import furbymock as furby
 
 dotenv.load_dotenv()
 
@@ -125,7 +125,9 @@ def play_and_modulate(comment_frequency: int, style: int, error_guess: int,
     new_subsegments = [(seg + random.randrange(-60, 20) / 10) for seg in
                        subsegments]
     full_modulated = sum(new_subsegments)
+    furby.startyapping()
     pydub.playback.play(full_modulated)
+    furby.stopyapping()
 
 
 class AiResponse(pydantic.BaseModel):
@@ -312,10 +314,13 @@ Lowerbound = 25
 def scream():
     audioseg = pydub.AudioSegment.from_wav(
         pathlib.Path("media/hwoooooooooaaaaaaaaaah.wav"))
+    furby.startyapping()
     pydub.playback.play(audioseg)
+    furby.stopyapping()
     print("[>] Furby.Scream()")
-    furby.boogie()
-    time.sleep(10)
+    # furby.boogie()
+    print("would have boogied")
+    # time.sleep(10)
 
 
 
@@ -328,17 +333,19 @@ if 2 * Lowerbound < ai_response.comment_politeness < 2 * Upperbound:  # sees if 
         if x > highestValue:
             highestValue = x
     if lowestValue > Upperbound or highestValue > 95:
-        furby.boogie()
-        time.sleep(5)
+        # happy
+        print("would have boogied")
+        # time.sleep(5)
     elif lowestValue < Lowerbound:
         scream()
     else:
-        furby.boogie()
+        print("would have boogied")
+        # furby.boogie()
 else:
     # runs if comments are creeply nice or bad manners
-    print("[>] Furby boogie")
-    furby.boogie()
-    print("[>] Furby boogie done")
+    # print("[>] Furby boogie")
+    print("would have boogied")
+    # print("[>] Furby boogie done")
     scream()
 print("[>] Furby sleep")
 furby.sleep()

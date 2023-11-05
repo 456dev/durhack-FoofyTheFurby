@@ -3,7 +3,7 @@ import time
 
 ghost = False
 
-arduino = serial.Serial(port='/dev/ttyACM1',  baudrate=9600, timeout=.1)
+arduino = serial.Serial(port='/dev/ttyACM0',  baudrate=9600, timeout=.1)
 
 def init():
     arduino.write("home".encode())
