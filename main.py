@@ -14,6 +14,8 @@ import pydantic
 import pydub
 import pydub.playback
 
+import furby2 as furby
+
 dotenv.load_dotenv()
 
 parser = argparse.ArgumentParser(
@@ -130,6 +132,8 @@ class AiResponse(pydantic.BaseModel):
 
 
 print("[>] furby.init()")
+furby.init()
+
 """
 furby methods
 init
@@ -143,6 +147,7 @@ custom sounds
 
 def on_error(msg: str):
     print("furby.babble_nonsense()")
+    furby.wake()
     print(f"[!] Error: {msg}")
 
     raise NotImplementedError(msg)
@@ -230,6 +235,7 @@ assistant:
 """
 
 print("[>] Furby.Thinking(1)")
+furby.sleep()
 print(f"[*] loading File {args.filename}")
 with open(args.filename, "r") as file:
     x = file.readlines()
@@ -254,6 +260,7 @@ except openai.error.Timeout as e:
 except openai.error.ServiceUnavailableError as e:
     on_error("OpenAi Unavalible")
 
+furby.wake()
 print(f"[*] Got Response in {time.time() - time_to_ai}")
 response = completion['choices'][0]['message']['content']
 
@@ -293,6 +300,10 @@ def scream():
         pathlib.Path("media/hwoooooooooaaaaaaaaaah.wav"))
     pydub.playback.play(audioseg)
     print("[>] Furby.Scream()")
+    furby.boogie()
+    time.sleep(10)
+    furby.sleep()
+
 
 
 if 2 * Lowerbound < ai_response.comment_politeness < 2 * Upperbound:  # sees if comments are bad mannered or creepy nice
@@ -303,15 +314,18 @@ if 2 * Lowerbound < ai_response.comment_politeness < 2 * Upperbound:  # sees if 
             lowestValue = x
         if x > highestValue:
             highestValue = x
-    print("[>] Furby.Idle()=False")
+    furby.wake()
     if lowestValue > Upperbound or highestValue > 95:
-        print("[>] Furby.Boogy(5sec)")
+        furby.boogie()
+        time.sleep(5)
+        furby.sleep()
     elif lowestValue < Lowerbound:
         scream()
     else:
-        print("[>] Furby.bundleNunsence(2)")
+        furby.boogie()
 else:
     # runs if comments are creeply nice or bad manners
-    print("[>] Furby.Idle()=false")
+    furby.boogie()
     scream()
 print("[>] Furby.Idle=true")
+furby.sleep()
