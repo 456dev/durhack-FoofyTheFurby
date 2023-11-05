@@ -1,21 +1,18 @@
 import argparse
-import os
-import pprint
-import sys
-
-import openai
-import dotenv
 import json
-import pydantic
-import time
+import os
 import pathlib
-import pydub, pydub.playback
+import pprint
 import random
-import librosa
-
+import time
 from typing import Sequence
 
+import dotenv
 import google.cloud.texttospeech as tts
+import openai
+import pydantic
+import pydub
+import pydub.playback
 
 dotenv.load_dotenv()
 
@@ -28,10 +25,11 @@ parser.add_argument("-f", "--filename", default="code.txt")
 args = parser.parse_args()
 
 
-def get_voiceline_string(comment_frequency: int, style: int, error_guess: int, comment_politeness: int):
+def get_voiceline_string(comment_frequency: int, style: int, error_guess: int,
+    comment_politeness: int):
     abnormal_code = not all([abs(factor - 100) <= 25 for factor in
-                         [comment_frequency, style, error_guess,
-                          comment_politeness]])
+                             [comment_frequency, style, error_guess,
+                              comment_politeness]])
     comment_alignment = 0 if abs(comment_politeness - 100) <= 25 else (
         -1 if comment_politeness < 100 else 1)
     comment_alignment_is_positive = comment_alignment == 0
@@ -98,25 +96,26 @@ def text_to_wav(voice_name: str, text: str, file: pathlib.Path):
 
 
 def ensure_file_generated(comment_frequency: int, style: int, error_guess: int,
-  comment_politeness: int, voice_name: str, force:bool = False):
-  file_name = f"cf{comment_frequency}_st{style}_eg{error_guess}_cn{comment_politeness}_vc{voice_name}.wav"
-  path = pathlib.Path("media/generated/" + file_name)
-  text = get_voiceline_string(comment_frequency, style, error_guess,
-                              comment_politeness)
-  if force or not path.exists():
-    text_to_wav(voice_name, text, path)
-  return path
-  
+    comment_politeness: int, voice_name: str, force: bool = False):
+    file_name = f"cf{comment_frequency}_st{style}_eg{error_guess}_cn{comment_politeness}_vc{voice_name}.wav"
+    path = pathlib.Path("media/generated/" + file_name)
+    text = get_voiceline_string(comment_frequency, style, error_guess,
+                                comment_politeness)
+    if force or not path.exists():
+        text_to_wav(voice_name, text, path)
+    return path
+
 
 def play_and_modulate(comment_frequency: int, style: int, error_guess: int,
-  comment_politeness: int, voice_name: str, force:bool = False):
-    path = ensure_file_generated(comment_frequency, style, error_guess, comment_politeness, voice_name, force)
+    comment_politeness: int, voice_name: str, force: bool = False):
+    path = ensure_file_generated(comment_frequency, style, error_guess,
+                                 comment_politeness, voice_name, force)
     audioseg = pydub.AudioSegment.from_wav(path)
     subsegments = audioseg[::100]
-    new_subsegments = [(seg + random.randrange(-60, 20)/10) for seg in subsegments]
+    new_subsegments = [(seg + random.randrange(-60, 20) / 10) for seg in
+                       subsegments]
     full_modulated = sum(new_subsegments)
     pydub.playback.play(full_modulated)
-
 
 
 class AiResponse(pydantic.BaseModel):
@@ -237,7 +236,7 @@ with open(args.filename, "r") as file:
     print("[*] Read Lines")
 CODE_CONTENT = "".join(x)
 print("[*] Assembled content")
-print(CODE_CONTENT)
+# print(CODE_CONTENT)
 
 print("[*] Calling OpenAI Api")
 time_to_ai = time.time()
@@ -267,8 +266,9 @@ response_infomation = json.loads(response)
 print("[*] validating against expected model")
 ai_response = AiResponse.model_validate(response_infomation)
 
-play_and_modulate(ai_response.comment_frequency, ai_response.style, ai_response.error_guess,ai_response.comment_politeness, "en-GB-Neural2-A", True)
-
+play_and_modulate(ai_response.comment_frequency, ai_response.style,
+                  ai_response.error_guess, ai_response.comment_politeness,
+                  "en-GB-Neural2-A", True)
 
 pprint.pprint(ai_response)
 
@@ -289,7 +289,8 @@ Lowerbound = 25
 
 
 def scream():
-    audioseg = pydub.AudioSegment.from_wav(pathlib.Path("media/hwoooooooooaaaaaaaaaah.wav"))
+    audioseg = pydub.AudioSegment.from_wav(
+        pathlib.Path("media/hwoooooooooaaaaaaaaaah.wav"))
     pydub.playback.play(audioseg)
     print("[>] Furby.Scream()")
 
