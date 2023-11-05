@@ -32,7 +32,7 @@ def boogie():
     arduino.write("home".encode())
     while str(arduino.readline().decode().rstrip()) != "home return":
         time.sleep(0.05)
-    arduino.write("boogie".encode())
+        arduino.write("boogie".encode())
     while str(arduino.readline().decode().rstrip()) != "boogie return":
         time.sleep(0.05)
     print("furby boogie")
@@ -56,7 +56,7 @@ def startyapping():
     arduino.write("speak".encode())
 
 def stopyapping():
-    arduino.write("nospeak".encode())
     time.sleep(0.1)
+    arduino.write("nospeak".encode())
     while str(arduino.readline().decode().rstrip()) != "home return":
         time.sleep(0.05)
