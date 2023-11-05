@@ -24,3 +24,9 @@ def freeze():
 def reset():
     # time.sleep(5)
     print("mock furby reset")
+
+def startyapping():
+    print("mock start yapping")
+
+def stopyapping():
+    print("mock stop yapping")
