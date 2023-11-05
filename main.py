@@ -1,21 +1,21 @@
 import argparse
-import os
-import pprint
-import sys
-
-import openai
-import dotenv
 import json
-import pydantic
-import time
+import os
 import pathlib
-import pydub, pydub.playback
+import pprint
 import random
-import librosa
-
+import time
 from typing import Sequence
 
+import dotenv
 import google.cloud.texttospeech as tts
+import openai
+import pydantic
+import pydub
+import pydub.playback
+
+# import furby2 as furby
+import furbymock as furby
 
 dotenv.load_dotenv()
 
@@ -28,20 +28,25 @@ parser.add_argument("-f", "--filename", default="code.txt")
 args = parser.parse_args()
 
 
-def get_voiceline_string(comment_frequency: int, style: int, error_guess: int, comment_politeness: int):
+def get_voiceline_string(comment_frequency: int, style: int, error_guess: int,
+    comment_politeness: int):
     abnormal_code = not all([abs(factor - 100) <= 25 for factor in
-                         [comment_frequency, style, error_guess,
-                          comment_politeness]])
+                             [comment_frequency, style, error_guess,
+                              comment_politeness]])
     comment_alignment = 0 if abs(comment_politeness - 100) <= 25 else (
         -1 if comment_politeness < 100 else 1)
     comment_alignment_is_positive = comment_alignment == 0
     comment_frequency_is_positive = abs(comment_frequency - 100) <= 25
     comment_matches = comment_alignment_is_positive == comment_frequency_is_positive
 
+    good_style = abs(style - 100) <= 25
+
     return f"""
   <speak><prosody rate="110%" pitch="150%">
     This code is {"<break time='0.4s'/>interesting" if abnormal_code else "acceptable"}.
     Your comments are {"creepy" if comment_alignment == -1 else ("bad" if comment_alignment == -1 else "good")}, {"and" if comment_matches else "but"} there are {"just" if comment_frequency_is_positive else "not"} enough of them.
+    {"Why would you say such a thing to me?" if comment_alignment_is_positive else ""}
+    {"That's absolutely awful, why would you make me look at this shit. It makes me want to gouge my eyes out." if not good_style else "Your code style doesn't look like an elephant ran over a pancake, you better keep it that way."}
     
   </prosody></speak>
   """
@@ -98,37 +103,26 @@ def text_to_wav(voice_name: str, text: str, file: pathlib.Path):
 
 
 def ensure_file_generated(comment_frequency: int, style: int, error_guess: int,
-  comment_politeness: int, voice_name: str, force:bool = False):
-  file_name = f"cf{comment_frequency}_st{style}_eg{error_guess}_cn{comment_politeness}_vc{voice_name}.wav"
-  path = pathlib.Path("media/" + file_name)
-  text = get_voiceline_string(comment_frequency, style, error_guess,
-                              comment_politeness)
-  if force or not path.exists():
-    text_to_wav(voice_name, text, path)
-  return path
-  
+    comment_politeness: int, voice_name: str, force: bool = False):
+    file_name = f"cf{comment_frequency}_st{style}_eg{error_guess}_cn{comment_politeness}_vc{voice_name}.wav"
+    path = pathlib.Path("media/generated/" + file_name)
+    text = get_voiceline_string(comment_frequency, style, error_guess,
+                                comment_politeness)
+    if force or not path.exists():
+        text_to_wav(voice_name, text, path)
+    return path
+
 
 def play_and_modulate(comment_frequency: int, style: int, error_guess: int,
-  comment_politeness: int, voice_name: str, force:bool = False):
-    path = ensure_file_generated(comment_frequency, style, error_guess, comment_politeness, voice_name, force)
-
-    y, sr = librosa.load(path)
-    librosa.effects.pitch_shift(y, sr=sr, )
-
+    comment_politeness: int, voice_name: str, force: bool = False):
+    path = ensure_file_generated(comment_frequency, style, error_guess,
+                                 comment_politeness, voice_name, force)
     audioseg = pydub.AudioSegment.from_wav(path)
     subsegments = audioseg[::100]
-    new_subsegments = [(seg + random.randrange(-60, 20)/10) for seg in subsegments]
+    new_subsegments = [(seg + random.randrange(-60, 20) / 10) for seg in
+                       subsegments]
     full_modulated = sum(new_subsegments)
     pydub.playback.play(full_modulated)
-
-
-play_and_modulate(0, 100, 100, 100, "en-GB-Neural2-A", True)
-
-sys.exit(0)
-
-
-# import sys
-# sys.exit(0)
 
 
 class AiResponse(pydantic.BaseModel):
@@ -143,6 +137,8 @@ class AiResponse(pydantic.BaseModel):
 
 
 print("[>] furby.init()")
+furby.init()
+
 """
 furby methods
 init
@@ -156,6 +152,7 @@ custom sounds
 
 def on_error(msg: str):
     print("furby.babble_nonsense()")
+    furby.wake()
     print(f"[!] Error: {msg}")
 
     raise NotImplementedError(msg)
@@ -243,13 +240,14 @@ assistant:
 """
 
 print("[>] Furby.Thinking(1)")
+furby.sleep()
 print(f"[*] loading File {args.filename}")
 with open(args.filename, "r") as file:
     x = file.readlines()
     print("[*] Read Lines")
 CODE_CONTENT = "".join(x)
 print("[*] Assembled content")
-print(CODE_CONTENT)
+# print(CODE_CONTENT)
 
 print("[*] Calling OpenAI Api")
 time_to_ai = time.time()
@@ -267,6 +265,7 @@ except openai.error.Timeout as e:
 except openai.error.ServiceUnavailableError as e:
     on_error("OpenAi Unavalible")
 
+furby.wake()
 print(f"[*] Got Response in {time.time() - time_to_ai}")
 response = completion['choices'][0]['message']['content']
 
@@ -278,6 +277,10 @@ response_infomation = json.loads(response)
 
 print("[*] validating against expected model")
 ai_response = AiResponse.model_validate(response_infomation)
+
+play_and_modulate(ai_response.comment_frequency, ai_response.style,
+                  ai_response.error_guess, ai_response.comment_politeness,
+                  "en-GB-Neural2-A", True)
 
 pprint.pprint(ai_response)
 
@@ -295,6 +298,19 @@ print(ai_response.comment_politeness_reason)
 print(f"[I] Score of {ai_response.comment_politeness}")
 Upperbound = 75
 Lowerbound = 25
+
+
+def scream():
+    audioseg = pydub.AudioSegment.from_wav(
+        pathlib.Path("media/hwoooooooooaaaaaaaaaah.wav"))
+    pydub.playback.play(audioseg)
+    print("[>] Furby.Scream()")
+    furby.boogie()
+    time.sleep(10)
+    furby.sleep()
+
+
+
 if 2 * Lowerbound < ai_response.comment_politeness < 2 * Upperbound:  # sees if comments are bad mannered or creepy nice
     lowestValue = 100
     highestValue = 0
@@ -303,15 +319,18 @@ if 2 * Lowerbound < ai_response.comment_politeness < 2 * Upperbound:  # sees if 
             lowestValue = x
         if x > highestValue:
             highestValue = x
-    print("[>] Furby.Idle()=False")
+    furby.wake()
     if lowestValue > Upperbound or highestValue > 95:
-        print("[>] Furby.Boogy(5sec)")
+        furby.boogie()
+        time.sleep(5)
+        furby.sleep()
     elif lowestValue < Lowerbound:
-        print("[>] Furby.Scream()")
+        scream()
     else:
-        print("[>] Furby.bundleNunsence(2)")
+        furby.boogie()
 else:
     # runs if comments are creeply nice or bad manners
-    print("[>] Furby.Idle()=false")
-    print("[>] Furby.Scream()")
+    furby.boogie()
+    scream()
 print("[>] Furby.Idle=true")
+furby.sleep()

@@ -162,4 +162,4 @@ cython_debug/
 
 .env
 google-prod-key.json
-media/*.wav
+media/generated/*.wav
