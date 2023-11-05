@@ -3,41 +3,47 @@ import time
 
 ghost = False
 
-arduino = serial.Serial(port='/dev/ttyACM0',  baudrate=9600, timeout=.1)
+arduino = serial.Serial(port='/dev/ttyACM1',  baudrate=9600, timeout=.1)
 
 def init():
-    time.sleep(5)
     arduino.write("home".encode())
-    time.sleep(5)
-    print("furby init")
+    while str(arduino.readline().decode().rstrip()) != "home return":
+        time.sleep(0.05)
 
 def sleep():
     arduino.write("home".encode())
-    time.sleep(5)
+    while str(arduino.readline().decode().rstrip()) != "home return":
+        time.sleep(0.05)
     arduino.write("sleep".encode())
-    time.sleep(5)
+    while str(arduino.readline().decode().rstrip()) != "sleep return":
+        time.sleep(0.05)
     print("furby sleep")
 
 def wake():
     arduino.write("wake".encode())
-    time.sleep(5)
+    while str(arduino.readline().decode().rstrip()) != "wake return":
+        time.sleep(0.05)
     arduino.write("home".encode())
-    time.sleep(5)
+    while str(arduino.readline().decode().rstrip()) != "home return":
+        time.sleep(0.05)
     print("furby wake")
 
 def boogie():
     arduino.write("home".encode())
-    time.sleep(5)
-    arduino.write("sleep".encode())
-    time.sleep(5)
+    while str(arduino.readline().decode().rstrip()) != "home return":
+        time.sleep(0.05)    arduino.write("boogie".encode())
+    while str(arduino.readline().decode().rstrip()) != "boogie return":
+        time.sleep(0.05)
     print("furby boogie")
 
 def freeze():
     arduino.write("home".encode())
-    time.sleep(5)
+    while str(arduino.readline().decode().rstrip()) != "home return":
+        time.sleep(0.05)
     print("furby stop boogie")
 
 def reset():
     arduino.write("home".encode())
-    time.sleep(5)
+    while str(arduino.readline().decode().rstrip()) != "home return":
+        time.sleep(0.05)
     print("furby reset")
