@@ -14,8 +14,8 @@ import pydantic
 import pydub
 import pydub.playback
 
-# import furby2 as furby
-import furbymock as furby
+import furby2 as furby
+# import furbymock as furby
 
 dotenv.load_dotenv()
 
@@ -48,7 +48,7 @@ def get_voiceline_string(comment_frequency: int, style: int, error_guess: int,
     Your comments are {"creepy" if comment_alignment == -1 else ("bad" if comment_alignment == -1 else "good")}, {"and" if comment_matches else "but"} there are {"just" if comment_frequency_is_positive else "not"} enough of them.
     {"Why would you say such a thing to me?" if comment_alignment_is_positive else ""}
     {"That's absolutely awful, why would you make me look at this shit. It makes me want to gouge my eyes out." if not good_style else "Your code style doesn't look like an elephant ran over a pancake, you better keep it that way."}
-    {"After seeing this thing, I understand why you are still alone in your mother's basement. You put so little effort into this, it seems like a crude ploy to make me die by making me read such horrendous code with obvious errors?" if good_code else ""} 
+    {"After seeing this thing, I understand why you are still alone in your mother's basement. You put so little effort into this, it seems like a crude ploy to make me die by making me read such horrendous code with obvious errors?" if not good_code else ""} 
 
   </prosody></speak>
   """
@@ -138,8 +138,9 @@ class AiResponse(pydantic.BaseModel):
     comment_politeness: int
 
 
-print("[>] furby.init()")
+print("[>] furby init")
 furby.init()
+print("[>] furby init done")
 
 """
 furby methods
@@ -241,8 +242,9 @@ assistant:
 }
 """
 
-print("[>] Furby.Thinking(1)")
+print("[>] Furby sleep")
 furby.sleep()
+print("[>] Furby sleep done")
 print(f"[*] loading File {args.filename}")
 with open(args.filename, "r") as file:
     x = file.readlines()
@@ -267,9 +269,13 @@ except openai.error.Timeout as e:
 except openai.error.ServiceUnavailableError as e:
     on_error("OpenAi Unavalible")
 
-furby.wake()
+
 print(f"[*] Got Response in {time.time() - time_to_ai}")
+print("[>] furby wake")
+furby.wake()
+print("[>] furby wake done")
 response = completion['choices'][0]['message']['content']
+
 
 print(response)
 
@@ -309,7 +315,6 @@ def scream():
     print("[>] Furby.Scream()")
     furby.boogie()
     time.sleep(10)
-    furby.sleep()
 
 
 
@@ -321,18 +326,19 @@ if 2 * Lowerbound < ai_response.comment_politeness < 2 * Upperbound:  # sees if 
             lowestValue = x
         if x > highestValue:
             highestValue = x
-    furby.wake()
     if lowestValue > Upperbound or highestValue > 95:
         furby.boogie()
         time.sleep(5)
-        furby.sleep()
     elif lowestValue < Lowerbound:
         scream()
     else:
         furby.boogie()
 else:
     # runs if comments are creeply nice or bad manners
+    print("[>] Furby boogie")
     furby.boogie()
+    print("[>] Furby boogie done")
     scream()
-print("[>] Furby.Idle=true")
+print("[>] Furby sleep")
 furby.sleep()
+print("[>] Furby sleep done")
