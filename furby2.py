@@ -31,7 +31,8 @@ def wake():
 def boogie():
     arduino.write("home".encode())
     while str(arduino.readline().decode().rstrip()) != "home return":
-        time.sleep(0.05)    arduino.write("boogie".encode())
+        time.sleep(0.05)
+    arduino.write("boogie".encode())
     while str(arduino.readline().decode().rstrip()) != "boogie return":
         time.sleep(0.05)
     print("furby boogie")
