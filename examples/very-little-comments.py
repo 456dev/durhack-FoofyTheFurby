@@ -8,7 +8,7 @@ print("c")
 
 print("d")
 
-print("e")#e
+print("e")
 
 print("f")
 

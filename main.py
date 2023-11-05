@@ -15,8 +15,8 @@ import pydantic
 import pydub
 import pydub.playback
 
-# import furby2 as furby
-import furbymock as furby
+import furby2 as furby
+# import furbymock as furby
 
 dotenv.load_dotenv()
 
@@ -27,7 +27,6 @@ parser = argparse.ArgumentParser(
 
 parser.add_argument("-f", "--filename", default="code.txt")
 parser.add_argument("-c", "--clean", default=True, action=argparse.BooleanOptionalAction)
-# parser.add_argument("-m", "--device", default="dryrun")
 args = parser.parse_args()
 
 clean = args.clean
